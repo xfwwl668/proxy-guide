@@ -113,7 +113,129 @@ deploy-vercel:   Vercel 免费部署，需反代套 CDN
 
 ### 完整信号流程
 
+#### 📊 流程图 1: 完整信号流
+
+```mermaid
+flowchart TD
+    A[🖥️ 你的电脑<br/>客户端 V2RayN] -->|① DNS 解析| B[🌐 DNS 服务器]
+    B -->|可能被污染| C{DNS 是否被墙?}
+    C -->|是| D[❌ 返回错误 IP 或超时]
+    C -->|否| E[✅ 返回正确 IP]
+    
+    A -->|② 连接代理节点<br/>不走 DNS，直接连节点| F[🔒 代理节点<br/>加密连接]
+    
+    F --> G[🔓 解密流量<br/>看到访问 google.com]
+    G --> H[🌍 通过优选域名/IP 转发<br/>不走被墙的 DNS]
+    H --> I[📡 获取目标网站内容]
+    I --> J[🔒 加密返回客户端]
+    J --> A
+    
+    F --> K[📊 哪吒面板<br/>监控连接数/流量]
+    F --> L[🛤️ Argo 隧道<br/>流量走 CF 边缘]
+    F --> M[📱 TG 推送<br/>节点上下线通知]
+
+    style A fill:#4CAF50,color:#fff
+    style B fill:#FF9800,color:#fff
+    style F fill:#2196F3,color:#fff
+    style G fill:#9C27B0,color:#fff
+    style H fill:#00BC9B,color:#fff
+    style I fill:#333,color:#fff
+    style J fill:#4CAF50,color:#fff
+    style K fill:#FF5722,color:#fff
+    style L fill:#607D8B,color:#fff
+    style M fill:#E91E63,color:#fff
+    style D fill:#f44336,color:#fff
+    style E fill:#4CAF50,color:#fff
 ```
+
+#### 📊 流程图 2: 节点位置选择
+
+```mermaid
+flowchart LR
+    subgraph 平台选择
+        A[你的平台是什么?] --> B{PaaS?}
+        A --> C{游戏机?}
+        A --> D{VPS?}
+        A --> E{Vercel?}
+    end
+    
+    B -->|是| F[Railway/Koyeb/Fly.io]
+    C -->|是| G[Serv00/CT8/Hostuno]
+    D -->|是| H[自建服务器]
+    E -->|是| I[Vercel 免费平台]
+    
+    F --> J[✅ sbx-native<br/>原生 FFI]
+    G --> K[✅ paper-pro<br/>替换主文件]
+    G --> L[✅ java-plugins-plus<br/>插件版]
+    H --> M[✅ Sing-box<br/>一键脚本]
+    I --> N[✅ deploy-vercel<br/>需反代套 CDN]
+
+    style A fill:#333,color:#fff
+    style J fill:#4CAF50,color:#fff
+    style K fill:#4CAF50,color:#fff
+    style L fill:#4CAF50,color:#fff
+    style M fill:#4CAF50,color:#fff
+    style N fill:#4CAF50,color:#fff
+```
+
+#### 📊 流程图 3: CDN 和反代流程
+
+```mermaid
+flowchart TD
+    subgraph 没有 CDN
+        A1[客户端] --> B1[目标服务器]
+        B1 --> C1[问题：延迟高<br/>可能不稳定]
+    end
+    
+    subgraph 有 CDN
+        A2[客户端] --> B2[CDN 边缘节点]
+        B2 --> C2[源站]
+        C2 --> D2[优势：延迟低<br/>速度快]
+    end
+    
+    subgraph 没有反代
+        A3[客户端] --> B3[节点真实 IP]
+        B3 --> C3[问题：IP 暴露<br/>容易被封]
+    end
+    
+    subgraph 有反代
+        A4[客户端] --> B4[CF CDN 反代]
+        B4 --> C4[节点真实 IP]
+        C4 --> D4[优势：IP 隐藏<br/>不容易被封]
+    end
+
+    style C1 fill:#f44336,color:#fff
+    style C3 fill:#f44336,color:#fff
+    style D2 fill:#4CAF50,color:#fff
+    style D4 fill:#4CAF50,color:#fff
+```
+
+#### 📊 流程图 4: 协议对比
+
+```mermaid
+flowchart LR
+    subgraph 协议选择
+        A[你的需求?] --> B{最隐蔽?}
+        A --> C{最稳定?}
+        A --> D{最快速度?}
+        A --> E{低延迟?}
+        A --> F{简单配置?}
+    end
+    
+    B -->|是| G[VLESS Reality]
+    C -->|是| H[VMESS WS+Argo<br/>Trojan WS]
+    D -->|是| I[Hysteria2<br/>TUIC 5]
+    E -->|是| J[TUIC 5]
+    F -->|是| K[Trojan WS<br/>Shadowsocks WS]
+
+    style G fill:#4CAF50,color:#fff
+    style H fill:#4CAF50,color:#fff
+    style I fill:#4CAF50,color:#fff
+    style J fill:#4CAF50,color:#fff
+    style K fill:#4CAF50,color:#fff
+```
+
+---
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                              完整信号流程图（从你到目标网站）                                              │
 ├─────────────────────────────────────────────────────────────────────────────────────────────────────┤
