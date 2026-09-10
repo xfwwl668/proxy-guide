@@ -2,7 +2,7 @@
 
 # 🌐 代理项目详细对比指南
 
-**代理项目全面分析 · 部署教程 · 选择建议**
+**代理项目全面分析 · 部署教程 · 信号流程 · 选择建议**
 
 [![GitHub stars](https://img.shields.io/github/stars/xfwwl668/proxy-guide)](https://github.com/xfwwl668/proxy-guide/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/xfwwl668/proxy-guide)](https://github.com/xfwwl668/proxy-guide/network)
@@ -11,7 +11,7 @@
 
 ---
 
-**本指南分析 10 个核心代理项目，涵盖协议对比、平台适配、部署教程和选择建议**
+**本指南分析 5 个核心代理项目，涵盖协议对比、平台适配、信号流程、部署教程和选择建议**
 
 </div>
 
@@ -21,121 +21,196 @@
 
 - [快速选择指南](#-快速选择指南)
 - [项目总览](#-项目总览)
-- [协议对比分析](#-协议对比分析)
+- [信号流程详解](#-信号流程详解)
 - [项目详细分析](#-项目详细分析)
   - [1. sbx-native](#1-sbx-native)
-  - [2. Sing-box](#2-sing-box)
-  - [3. nodejs-railway](#3-nodejs-railway)
-  - [4. python-xray-argo](#4-python-xray-argo)
-  - [5. java-ws](#5-java-ws)
-  - [6. edgetunnel](#6-edgetunnel)
-  - [7. cnet](#7-cnet)
-  - [8. java-xah](#8-java-xah)
-  - [9. aimili-vpngate](#9-aimili-vpngate)
-  - [10. node-ws-hug](#10-node-ws-hug)
-- [部署平台对比](#-部署平台对比)
-- [哪吒探针集成指南](#-哪吒探针集成指南)
+  - [2. paper-pro](#2-paper-pro)
+  - [3. java-plugins-plus](#3-java-plugins-plus)
+  - [4. Sing-box](#4-sing-box)
+  - [5. deploy-vercel](#5-deploy-vercel)
+- [项目对比矩阵](#-项目对比矩阵)
+- [假人保活方案](#-假人保活方案)
+- [常见设置详解](#-常见设置详解)
 - [常见问题解答](#-常见问题解答)
 
 ---
 
 ## 🎯 快速选择指南
 
-### 按部署平台选择
+### 按平台选择
 
-| 平台 | 推荐项目 | 理由 |
+| 平台 | 推荐项目 | 为什么 |
 |---|---|---|
-| **VPS (Ubuntu/CentOS/Debian)** | [Sing-box](#2-sing-box) | 一键脚本，四协议组合，最稳定 |
-| **Serv00 / CT8** | [Sing-box](#2-sing-box) | 专用脚本，全自动安装+保活 |
-| **PaaS (Railway/Koyeb/Fly)** | [nodejs-railway](#3-nodejs-railway) / [python-xray-argo](#4-python-xray-argo) | 支持临时/固定隧道 |
-| **Node.js 平台** | [sbx-native](#1-sbx-native) | 原生启动器，无子进程 |
-| **Java 平台** | [sbx-native](#1-sbx-native) / [java-ws](#5-java-ws) | 原生支持，无需内核 |
-| **Python 平台** | [sbx-native](#1-sbx-native) / [python-xray-argo](#4-python-xray-argo) | 原生支持 |
-| **CF Workers / Pages** | [edgetunnel](#6-edgetunnel) | 边缘计算，无需服务器 |
-| **任意平台** | [cnet](#7-cnet) | ECH 代理 + 哪吒 + 隧道三合一 |
+| **PaaS (Railway/Koyeb/Fly)** | [sbx-native](#1-sbx-native) | 原生 FFI，无子进程，不易被检测 |
+| **游戏机 (Serv00/CT8/Hostuno)** | [paper-pro](#2-paper-pro) | 替换主文件，MC 最自然，防回收 |
+| **游戏机（已有 MC）** | [java-plugins-plus](#3-java-plugins-plus) | 插件版，加个插件就行，不影响原 MC |
+| **VPS (Ubuntu/CentOS/Debian)** | [Sing-box](#4-sing-box) | 一键脚本，四协议组合，最稳定 |
+| **Vercel** | [deploy-vercel](#5-deploy-vercel) | 免费部署，低延迟，需反代套 CDN |
 
-### 按协议选择
+### 按语言选择
 
-| 协议 | 推荐项目 | 说明 |
-|---|---|---|
-| **VLESS Reality** | [sbx-native](#1-sbx-native) / [Sing-box](#2-sing-box) | 最隐蔽，推荐首选 |
-| **VMESS WS + Argo** | 所有项目 | 经典组合，稳定 |
-| **Hysteria2** | [sbx-native](#1-sbx-native) / [Sing-box](#2-sing-box) | UDP 协议，速度最快 |
-| **TUIC 5** | [sbx-native](#1-sbx-native) / [Sing-box](#2-sing-box) | QUIC 协议，低延迟 |
-| **ECH** | [cnet](#7-cnet) | 端到端加密，最安全 |
-| **Trojan** | [java-ws](#5-java-ws) / [node-ws-hug](#10-node-ws-hug) | 简单稳定 |
-| **Shadowsocks** | [java-ws](#5-java-ws) | 兼容性好 |
-
-### 按需求选择
-
-| 需求 | 推荐项目 | 说明 |
-|---|---|---|
-| **最简单部署** | [Sing-box](#2-sing-box) | 一键脚本，全自动 |
-| **最多协议** | [sbx-native](#1-sbx-native) | 6 种协议，原生启动 |
-| **最轻量** | [cnet](#7-cnet) | 单二进制文件 |
-| **无子进程** | [sbx-native](#1-sbx-native) | 原生 FFI 调用 |
-| **最隐蔽** | [cnet](#7-cnet) | ECH 加密 |
-| **最快速度** | [Sing-box](#2-sing-box) | HY2 + TUIC |
-| **免费平台** | [edgetunnel](#6-edgetunnel) | CF Workers/Pages |
+| 语言 | 推荐项目 |
+|---|---|
+| **Node.js** | [sbx-native](#1-sbx-native) / [deploy-vercel](#5-deploy-vercel) |
+| **Python** | [sbx-native](#1-sbx-native) |
+| **Java** | [sbx-native](#1-sbx-native) / [paper-pro](#2-paper-pro) / [java-plugins-plus](#3-java-plugins-plus) |
+| **Shell** | [Sing-box](#4-sing-box) |
 
 ---
 
 ## 📊 项目总览
 
-### 项目分类
+### 五个项目定位
 
-| 类别 | 项目 | 说明 |
-|---|---|---|
-| **原生启动器** | sbx-native | sing-box 原生 FFI 启动，无子进程 |
-| **一键脚本** | Sing-box | VPS/Serv00/CT8 一键安装 |
-| **Argo 隧道** | nodejs-railway, python-xray-argo | Cloudflare Argo 部署 |
-| **Java 实现** | java-ws, java-xah | Java 原生代理 |
-| **边缘计算** | edgetunnel | CF Workers/Pages |
-| **三合一** | cnet | ECH + Nezha + Tunnel |
-| **双协议** | node-ws-hug | VLESS + Trojan |
-| **出站工具** | aimili-vpngate | vpngate 干净 IP 出站 |
+| 项目 | 定位 | 部署方式 | 平台 |
+|---|---|---|---|
+| **sbx-native** | 原生启动器 | FFI 调用 .so | PaaS / 游戏机 |
+| **paper-pro** | MC 主文件 | 替换 server.jar | 游戏机 |
+| **java-plugins-plus** | MC 插件 | 放 plugins/ 目录 | 游戏机 |
+| **Sing-box** | VPS 脚本 | 一键安装 | VPS |
+| **deploy-vercel** | Vercel 部署 | npm 部署 | Vercel |
 
-### 项目对比矩阵
+### 核心区别
 
-| 项目 | 语言 | 协议数 | 哪吒 | Argo | 订阅 | TG推送 | 大小 | 推荐度 |
-|---|---|---|---|---|---|---|---|---|
-| **sbx-native** | Java/Node/Python | 6 | ✅ | ✅ | ✅ | ✅ | ~50KB | ⭐⭐⭐⭐⭐ |
-| **Sing-box** | Shell | 4 | ✅ | ✅ | ✅ | ✅ | ~50KB | ⭐⭐⭐⭐⭐ |
-| **nodejs-railway** | JavaScript | 3 | ✅ | ✅ | ✅ | ❌ | ~220KB | ⭐⭐⭐⭐ |
-| **python-xray-argo** | Python | 3 | ✅ | ✅ | ✅ | ❌ | ~22KB | ⭐⭐⭐⭐ |
-| **java-ws** | Java | 3 | ✅ | ❌ | ✅ | ❌ | ~37KB | ⭐⭐⭐⭐ |
-| **edgetunnel** | JavaScript | 2 | ❌ | ❌ | ✅ | ❌ | ~150KB | ⭐⭐⭐⭐ |
-| **cnet** | Node/Python/Shell | 1 | ✅ | ✅ | ✅ | ❌ | ~5KB | ⭐⭐⭐⭐ |
-| **java-xah** | Java | 2 | ❌ | ✅ | ❌ | ❌ | ~33KB | ⭐⭐⭐ |
-| **aimili-vpngate** | - | - | ❌ | ❌ | ❌ | ❌ | ~130KB | ⭐⭐⭐ |
-| **node-ws-hug** | JavaScript | 2 | ❌ | ❌ | ❌ | ❌ | ~6MB | ⭐⭐⭐ |
+```
+sbx-native:      独立运行，无依赖，原生 FFI
+paper-pro:       MC 服务端内置，替换主文件
+java-plugins-plus: MC 插件，不影响原 MC 功能
+Sing-box:        VPS 一键脚本，全自动安装
+deploy-vercel:   Vercel 免费部署，需反代套 CDN
+```
 
 ---
 
-## 🔐 协议对比分析
+## 🔄 信号流程详解
 
-### 协议特性对比
+### 完整信号流程
 
-| 协议 | 加密 | 速度 | 隐蔽性 | 穿透力 | 客户端支持 | 推荐度 |
-|---|---|---|---|---|---|---|
-| **VLESS Reality** | TLS 1.3 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **VMESS WS + TLS** | TLS 1.2 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Hysteria2** | TLS 1.3 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **TUIC 5** | QUIC | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **ECH** | 端到端 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Trojan WS** | TLS 1.2 | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Shadowsocks** | 多种 | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          完整信号流程图                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌──────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────┐  │
+│  │  客户端   │────▶│   代理节点   │────▶│  优选域名/IP  │────▶│  目标网站 │  │
+│  │          │     │              │     │              │     │          │  │
+│  │ Siri     │     │ sbx-native   │     │ www.google   │     │ Google   │  │
+│  │ Mihomo   │     │ paper-pro    │     │ .com         │     │          │  │
+│  │ Clash    │     │ java-plugins │     │              │     │          │  │
+│  │          │     │ Sing-box     │     │              │     │          │  │
+│  └──────────┘     │              │     │              │     └──────────┘  │
+│                   │ deploy-vercel│     └──────────────┘                   │
+│                   └──────────────┘                                        │
+│                        │                                                  │
+│                        ▼                                                  │
+│                   ┌──────────┐                                           │
+│                   │  哪吒面板  │                                           │
+│                   │  (监控)   │                                           │
+│                   └──────────┘                                           │
+│                        │                                                  │
+│                        ▼                                                  │
+│                   ┌──────────┐                                           │
+│                   │  CF CDN   │                                           │
+│                   │ (反代加速) │                                           │
+│                   └──────────┘                                           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-### 协议组合推荐
+### 每个环节详解
 
-| 场景 | 推荐组合 | 理由 |
-|---|---|---|
-| **日常使用** | VLESS Reality + VMESS WS | 隐蔽性强，稳定 |
-| **追求速度** | Hysteria2 + TUIC 5 | UDP 协议，速度最快 |
-| **严格审查** | ECH + VLESS Reality | 端到端加密，最安全 |
-| **低延迟** | TUIC 5 + VMESS WS | QUIC 低延迟 |
-| **GPT 解锁** | VLESS Reality + VMESS WS + HY2 | 多协议备份 |
-| **Netflix** | VMESS WS + TLS | 兼容性最好 |
+#### 1️⃣ 客户端（你的设备）
+
+```
+常用客户端：
+- Siri (iOS/Android) - 免费，简洁
+- Mihomo (全平台) - 功能强大，支持策略
+- Clash (全平台) - 经典，兼容性好
+- Nekoray (Windows) - 付费，功能多
+
+客户端做的事：
+1. 读取订阅链接
+2. 解析节点信息
+3. 选择最佳节点
+4. 建立加密连接
+```
+
+#### 2️⃣ 代理节点（服务器端）
+
+```
+节点在哪里运行：
+- PaaS: Railway / Koyeb / Fly.io → sbx-native
+- 游戏机: Serv00 / CT8 / Hostuno → paper-pro / java-plugins-plus
+- VPS: 自建服务器 → Sing-box
+- Vercel: 免费平台 → deploy-vercel
+
+节点做的事：
+1. 接收客户端加密连接
+2. 解密流量
+3. 通过优选域名/IP 转发
+4. 获取目标网站内容
+5. 加密返回客户端
+```
+
+#### 3️⃣ 优选域名/IP
+
+```
+什么是优选域名/IP：
+- 优选域名：解析到 CDN 边缘节点的域名，延迟低
+- 优选IP：直连 CDN 边缘节点 IP，跳过 DNS
+
+为什么要优选：
+1. 降低延迟 - 直连边缘节点
+2. 提高稳定性 - 避免 DNS 污染
+3. 隐藏真实节点 - 流量经过 CDN
+
+常用优选域名：
+- www.google.com
+- api.github.com
+- gitee.com
+- www.visa.com.tw
+
+怎么用：
+1. 访问 https://sub.eooce.xx.kg 获取优选域名
+2. 选择延迟最低的
+3. 填入 CFIP 变量
+```
+
+#### 4️⃣ 反代 CDN
+
+```
+什么是反代：
+- 用 CF Workers 把你的节点域名映射到另一个域名
+- 流量先经过 CDN，再转发到真实节点
+
+为什么要反代：
+1. 套 CDN 加速 - 降低延迟
+2. 隐藏真实 IP - 防止节点被封
+3. 防检测 - 流量看起来像正常网站
+
+怎么反代：
+1. 创建 CF Worker
+2. 粘贴反代代码
+3. 绑定自定义域名
+4. 客户端用新域名连接
+```
+
+#### 5️⃣ 哪吒面板
+
+```
+什么是哪吒：
+- 服务器监控面板
+- 显示节点连接数、流量、CPU/内存
+
+为什么要用：
+1. 监控节点状态
+2. 统计流量
+3. 管理多个节点
+
+哪吒 v0 vs v1：
+- v0: 需要 NEZHA_PORT，agent 端口
+- v1: 不需要端口，地址格式 host:port
+```
 
 ---
 
@@ -150,43 +225,50 @@
 | 项目 | 说明 |
 |---|---|
 | **GitHub** | [xfwwl668/sbx-native](https://github.com/xfwwl668/sbx-native) |
+| **定位** | 原生启动器，无子进程 |
 | **语言** | Java / Node.js / Python |
 | **协议** | VMESS WS+Argo, VLESS Reality, HY2, TUIC, AnyTLS, SOCKS5 |
-| **特点** | 原生 FFI 调用，无子进程 |
-| **大小** | ~50KB (不含动态库) |
+| **平台** | PaaS / 游戏机 / VPS |
 
 #### 🚀 核心特性
 
-- ✅ **原生启动**：通过 JNA/koffi 直接调用 sing-box 动态库，无子进程
-- ✅ **多协议支持**：6 种协议可选启用
-- ✅ **自动生成证书**：Reality X25519 keypair，HY2/TUIC/AnyTLS TLS 证书
+- ✅ **原生 FFI**：通过 JNA/koffi 直接调用 sing-box .so，无子进程
+- ✅ **6 种协议**：VMESS WS+Argo, VLESS Reality, HY2, TUIC, AnyTLS, SOCKS5
+- ✅ **自动证书**：Reality X25519 keypair，HY2/TUIC/AnyTLS TLS 证书
 - ✅ **自动订阅**：HTTP 暴露订阅链接
 - ✅ **哪吒集成**：支持 v0 和 v1
-- ✅ **Telegram 推送**：节点上下线通知
+- ✅ **TG 推送**：节点上下线通知
 - ✅ **自动保活**：Merge-sub 节点上传
-- ✅ **YouTube WARP**：可选强制 YouTube 走 WARP 出站
+
+#### 🔄 信号流程
+
+```
+客户端 → 节点(PaaS/游戏机) → 优选域名/IP → 目标网站
+
+具体：
+1. 客户端连接节点（WS/TLS）
+2. 节点解密流量
+3. 节点通过优选域名/IP 转发
+4. 获取目标内容
+5. 加密返回客户端
+```
 
 #### 🛠️ 部署教程
 
-##### Java 版本
+##### Node.js 版本（推荐）
 
 ```bash
 # 克隆仓库
 git clone https://github.com/xfwwl668/sbx-native.git
-cd sbx-native/java
+cd sbx-native/nodejs
 
-# 构建
-mvn -DskipTests package
+# 安装依赖
+npm install
+
+# 设置环境变量（编辑 .env 或在平台设置）
+# 详见环境变量说明
 
 # 运行
-java -jar target/server-1.0.jar
-```
-
-##### Node.js 版本
-
-```bash
-cd sbx-native/nodejs
-npm install
 npm start
 ```
 
@@ -198,93 +280,308 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-#### ⚙️ 环境变量配置
-
-| 变量 | 默认值 | 说明 |
-|---|---|---|
-| `UPLOAD_URL` | 空 | Merge-sub 上传地址 |
-| `PROJECT_URL` | 空 | 项目公网 URL |
-| `AUTO_ACCESS` | false | 自动保活 |
-| `FILE_PATH` | `.npm`/`.cache` | 运行目录 |
-| `SUB_PATH` | `sub` | 订阅路径 |
-| `UUID` | 随机 | 节点 UUID |
-| `NEZHA_SERVER` | 空 | 哪吒面板地址 |
-| `NEZHA_PORT` | 空 | 哪吒 v0 agent 端口 |
-| `NEZHA_KEY` | 空 | 哪吒密钥 |
-| `ARGO_DOMAIN` | 空 | Argo 固定隧道域名 |
-| `ARGO_AUTH` | 空 | Argo 隧道 token/JSON |
-| `ARGO_PORT` | `8001` | Argo 隧道端口 |
-| `S5_PORT` | 空 | SOCKS5 端口 |
-| `TUIC_PORT` | 空 | TUIC 端口 |
-| `HY2_PORT` | 空 | HY2 端口 |
-| `ANYTLS_PORT` | 空 | AnyTLS 端口 |
-| `REALITY_PORT` | 空 | VLESS Reality 端口 |
-| `CFIP` | `saas.sin.fan` | 优选域名/IP |
-| `CFPORT` | `443` | 优选端口 |
-| `PORT` | `3000` | HTTP 订阅端口 |
-| `NAME` | 空 | 节点名称前缀 |
-| `CHAT_ID` | 空 | Telegram chat id |
-| `BOT_TOKEN` | 空 | Telegram bot token |
-| `DISABLE_ARGO` | false | 禁用 Argo |
-
-#### 💡 使用示例
+##### Java 版本
 
 ```bash
-# 启用所有协议
-export REALITY_PORT=443
-export HY2_PORT=8443
-export TUIC_PORT=9443
-export S5_PORT=1080
+cd sbx-native/java
+mvn -DskipTests package
+java -jar target/server-1.0.jar
+```
 
-# 使用固定隧道
-export ARGO_DOMAIN=example.2go.com
-export ARGO_AUTH='your-token-or-json'
+#### ⚙️ 环境变量详解
 
-# 哪吒 v1
-export NEZHA_SERVER=nz.example.com:8008
-export NEZHA_KEY=your-client-secret
+| 变量 | 默认值 | 为什么这么设置 | 有什么用 |
+|---|---|---|---|
+| `UPLOAD_URL` | 空 | 不填不上传 | Merge-sub 订阅上传地址 |
+| `PROJECT_URL` | 空 | 不填不保活 | 项目公网 URL，用于自动保活 |
+| `AUTO_ACCESS` | false | 默认关闭 | 自动访问保活，true 开启 |
+| `FILE_PATH` | `.npm` | 运行目录 | 存放 .so 动态库和配置 |
+| `SUB_PATH` | `sub` | 订阅路径 | HTTP 订阅地址 `/sub` |
+| `UUID` | 随机 | 每个节点唯一 | 客户端识别节点 |
+| `NEZHA_SERVER` | 空 | 不填不监控 | 哪吒面板地址 |
+| `NEZHA_PORT` | 空 | v1 留空 | 哪吒 v0 agent 端口 |
+| `NEZHA_KEY` | 空 | 不填不监控 | 哪吒密钥 |
+| `ARGO_DOMAIN` | 空 | 空用临时隧道 | Argo 固定隧道域名 |
+| `ARGO_AUTH` | 空 | 空用临时隧道 | Argo 隧道 token/JSON |
+| `ARGO_PORT` | `8001` | 固定隧道端口 | cloudflared 反代端口 |
+| `S5_PORT` | 空 | 空不启用 | SOCKS5 端口 |
+| `TUIC_PORT` | 空 | 空不启用 | TUIC 端口 |
+| `HY2_PORT` | 空 | 空不启用 | HY2 端口 |
+| `ANYTLS_PORT` | 空 | 空不启用 | AnyTLS 端口 |
+| `REALITY_PORT` | 空 | 空不启用 | VLESS Reality 端口 |
+| `CFIP` | `cf.877774.xyz` | 优选域名 | 流量转发目标 |
+| `CFPORT` | `443` | 优选端口 | 转发目标端口 |
+| `PORT` | `3000` | HTTP 端口 | 订阅服务监听端口 |
+| `NAME` | 空 | 节点名称 | 订阅里显示的名称 |
+| `CHAT_ID` | 空 | 不填不推送 | Telegram chat id |
+| `BOT_TOKEN` | 空 | 不填不推送 | Telegram bot token |
+| `DISABLE_ARGO` | false | 默认开启 | 禁用 Argo，true 禁用 |
+| `SHOW_LOG` | false | 默认关闭 | 显示日志 |
 
-# 运行
-node index.js
+#### 💡 为什么用 FFI？
+
+```
+传统方式：
+- 启动 sing-box 二进制文件
+- 生成子进程
+- 容易被检测（子进程特征）
+
+FFI 方式：
+- 直接调用 sing-box .so 动态库
+- 只有一个主进程
+- 不易被检测（无子进程）
+- 性能更好（无进程间通信）
 ```
 
 #### 🎯 适用场景
 
-- ✅ Node.js / Java / Python 平台
+- ✅ PaaS 平台（Railway / Koyeb / Fly.io）
+- ✅ 游戏平台玩具
+- ✅ 需要无子进程
 - ✅ 需要多协议组合
-- ✅ 要求无子进程
-- ✅ 需要原生性能
-
-#### ⚠️ 注意事项
-
-- 需要 Linux amd64 或 arm64 环境
-- 需要访问动态库下载域名
-- Reality 首次运行会生成 keypair，后续复用
 
 ---
 
-### 2. Sing-box
+### 2. paper-pro
+
+#### 📌 基本信息
+
+| 项目 | 说明 |
+|---|---|
+| **GitHub** | [eooce/paper-pro](https://github.com/eooce/paper-pro) |
+| **定位** | MC 主文件，内置代理 |
+| **语言** | Java |
+| **协议** | 同 sbx-native（6 种） |
+| **平台** | 游戏机（Serv00/CT8/Hostuno） |
+
+#### 🚀 核心特性
+
+- ✅ **MC 内置**：PaperMC 修改版，内置 sbx-native
+- ✅ **替换主文件**：上传 server.jar 替换原来的
+- ✅ **自然真实**：看起来像正常 MC 服务器
+- ✅ **防回收**：MC 连接最自然，平台不检测
+- ✅ **假人支持**：可加假人插件保持活跃
+
+#### 🔄 信号流程
+
+```
+客户端 → MC 服务器(游戏机) → 优选域名/IP → 目标网站
+
+同时：
+MC 玩家连接 → 保持服务器活跃 → 防止回收
+
+具体：
+1. MC 客户端连接节点（WS/TLS）
+2. 节点解密流量
+3. 节点通过优选域名/IP 转发
+4. 获取目标内容
+5. 加密返回客户端
+
+同时 MC 玩家连接保持服务器活跃
+```
+
+#### 🛠️ 部署教程
+
+##### 步骤 1：Fork 仓库
+
+```
+1. 打开 https://github.com/eooce/paper-pro
+2. 点击右上角 "Use this template"
+3. 创建一个新仓库（建议私有）
+4. 名称随意
+```
+
+##### 步骤 2：修改环境变量
+
+```
+1. 打开 Actions 菜单
+2. 点击 "I understand my workflows, go ahead and enable them"
+3. 打开文件：
+   paper-server/src/main/java/io/papermc/paper/sbx/App.java
+4. 修改第 41-64 行的环境变量
+5. 不需要的留空
+6. 保存后 Actions 自动构建
+```
+
+##### 步骤 3：下载 JAR
+
+```
+1. 等待 7-10 分钟构建完成
+2. 打开仓库右侧 "Releases"
+3. 下载 server.jar
+```
+
+##### 步骤 4：上传到游戏机
+
+```
+1. 登录游戏机面板（Serv00/CT8/Hostuno）
+2. 上传 server.jar 到文件管理根目录
+3. 运行即可
+```
+
+#### ⚙️ 环境变量（同 sbx-native）
+
+| 变量 | 说明 |
+|---|---|
+| `UUID` | 节点 UUID，每个节点唯一 |
+| `NEZHA_SERVER` | 哪吒面板地址 |
+| `NEZHA_KEY` | 哪吒密钥 |
+| `ARGO_DOMAIN` | Argo 固定隧道域名 |
+| `ARGO_AUTH` | Argo 隧道密钥 |
+| `CFIP` | 优选域名/IP |
+| `CFPORT` | 优选端口 |
+| `REALITY_PORT` | VLESS Reality 端口 |
+| `HY2_PORT` | HY2 端口 |
+| `TUIC_PORT` | TUIC 端口 |
+
+#### 🎯 适用场景
+
+- ✅ 游戏机平台（Serv00/CT8/Hostuno）
+- ✅ 需要防回收
+- ✅ 需要自然真实
+- ✅ 需要 MC 环境
+
+---
+
+### 3. java-plugins-plus
+
+#### 📌 基本信息
+
+| 项目 | 说明 |
+|---|---|
+| **GitHub** | [eooce/java-plugins-plus](https://github.com/eooce/java-plugins-plus) |
+| **定位** | MC 插件，内置代理 |
+| **语言** | Java |
+| **协议** | 同 sbx-native（6 种） |
+| **平台** | Paper/Spigot/Purpur/BungeeCord/Fabric/Velocity |
+
+#### 🚀 核心特性
+
+- ✅ **MC 插件**：EssentialsX 修改版，内置代理
+- ✅ **放插件目录**：不影响原 MC 功能
+- ✅ **多平台支持**：Paper/Spigot/Purpur/BungeeCord/Fabric/Velocity
+- ✅ **假人支持**：可配合假人插件使用
+- ✅ **自动构建**：GitHub Actions 自动打包
+
+#### 🔄 信号流程
+
+```
+客户端 → MC 插件(游戏机) → 优选域名/IP → 目标网站
+
+同时：
+MC 玩家连接 → 保持服务器活跃 → 防止回收
+
+具体：
+1. MC 客户端连接节点（WS/TLS）
+2. 插件解密流量
+3. 插件通过优选域名/IP 转发
+4. 获取目标内容
+5. 加密返回客户端
+```
+
+#### 🛠️ 部署教程
+
+##### 步骤 1：Fork 仓库
+
+```
+1. 打开 https://github.com/eooce/java-plugins-plus
+2. 点击右上角 "Use this template"
+3. 创建一个新仓库（建议私有）
+4. 名称随意
+```
+
+##### 步骤 2：修改环境变量
+
+```
+1. 打开 Actions 菜单
+2. 点击 "I understand my workflows, go ahead and enable them"
+3. 打开文件：
+   common/src/main/java/com/example/essentialsx/common/AppService.java
+4. 修改第 46-69 行的环境变量
+5. 不需要的留空
+6. 保存后 Actions 自动构建
+```
+
+##### 步骤 3：下载插件
+
+```
+1. 等待 2 分钟构建完成
+2. 打开仓库右侧 "Releases"
+3. 在 "Latest Build" 里下载 jar 文件
+```
+
+##### 步骤 4：上传到 MC 服务器
+
+```
+不同平台放不同目录：
+
+- Paper/Spigot/Purpur：放到 plugins/ 文件夹
+- BungeeCord：放到 plugins/ 文件夹
+- Velocity：放到 plugins/ 文件夹
+- Fabric：放到 mods/ 文件夹
+
+上传后重启服务器即可
+```
+
+#### ⚙️ 环境变量
+
+| 变量 | 说明 |
+|---|---|
+| `UUID` | 节点 UUID，每个节点唯一 |
+| `NEZHA_SERVER` | 哪吒面板地址 |
+| `NEZHA_KEY` | 哪吒密钥 |
+| `ARGO_DOMAIN` | Argo 固定隧道域名 |
+| `ARGO_AUTH` | Argo 隧道密钥 |
+| `CFIP` | 优选域名/IP |
+| `CFPORT` | 优选端口 |
+| `REALITY_PORT` | VLESS Reality 端口 |
+| `HY2_PORT` | HY2 端口 |
+| `TUIC_PORT` | TUIC 端口 |
+| `S5_PORT` | SOCKS5 端口 |
+
+#### 🎯 适用场景
+
+- ✅ 已有 MC 环境
+- ✅ 不想替换主文件
+- ✅ 需要保留原 MC 功能
+- ✅ 多平台支持
+
+---
+
+### 4. Sing-box
 
 #### 📌 基本信息
 
 | 项目 | 说明 |
 |---|---|
 | **GitHub** | [xfwwl668/Sing-box](https://github.com/xfwwl668/Sing-box) |
+| **定位** | VPS 一键脚本 |
 | **语言** | Shell |
 | **协议** | VLESS Reality, VMESS WS+Argo, HY2, TUIC |
-| **特点** | 一键安装脚本，全自动 |
-| **大小** | ~50KB |
+| **平台** | VPS (Ubuntu/CentOS/Debian/Alpine) |
 
 #### 🚀 核心特性
 
-- ✅ **一键安装**：复制粘贴脚本即可部署
+- ✅ **一键安装**：复制粘贴脚本即可
 - ✅ **四协议组合**：VLESS Reality + VMESS WS+Argo + HY2 + TUIC
-- ✅ **多平台支持**：VPS, Serv00, CT8
+- ✅ **多平台**：VPS / Serv00 / CT8
 - ✅ **自动端口**：智能端口分配
-- ✅ **哪吒集成**：可选集成
-- ✅ **Telegram 通知**：可选
-- ✅ **自动保活**：内置保活服务
-- ✅ **GPT/Netflix 解锁**：默认配置
+- ✅ **哪吒集成**：可选
+- ✅ **TG 通知**：可选
+- ✅ **自动保活**：内置
+
+#### 🔄 信号流程
+
+```
+客户端 → VPS 节点 → 优选域名/IP → 目标网站
+
+具体：
+1. 客户端连接 VPS 节点（Reality/WS+Argo/HY2/TUIC）
+2. VPS 解密流量
+3. VPS 通过优选域名/IP 转发
+4. 获取目标内容
+5. 加密返回客户端
+```
 
 #### 🛠️ 部署教程
 
@@ -318,534 +615,426 @@ ARGO_AUTH='{"AccountTag":"123","TunnelSecret":"123","TunnelID":"123"}' \
 bash <(curl -Ls https://github.com/xfwwl668/Sing-box/releases/download/00/sb4.sh)
 ```
 
-##### 单协议安装
-
-```bash
-# HY2 单协议
-bash <(curl -Ls https://github.com/xfwwl668/Sing-box/releases/download/00/2.sh)
-
-# TUIC 单协议
-bash <(curl -Ls https://github.com/xfwwl668/Sing-box/releases/download/00/tu.sh)
-
-# VMESS WS+Argo 单协议
-bash <(curl -Ls https://github.com/xfwwl668/Sing-box/releases/download/00/vm.sh)
-```
-
 #### ⚙️ 环境变量
 
-| 变量 | 默认值 | 说明 |
-|---|---|---|
-| `PORT` | 随机 | 订阅端口 |
-| `CFIP` | `www.visa.com.tw` | 优选域名/IP |
-| `CFPORT` | `443` | 优选端口 |
-| `UUID` | 自动 | 节点 UUID |
-| `NEZHA_SERVER` | 空 | 哪吒面板地址 |
-| `NEZHA_PORT` | `5555` | 哪吒端口 |
-| `NEZHA_KEY` | 空 | 哪吒密钥 |
-| `ARGO_DOMAIN` | 空 | Argo 固定隧道域名 |
-| `ARGO_AUTH` | 空 | Argo 隧道密钥 |
-| `SUB_TOKEN` | 自动生成 | 订阅 token |
-| `CHAT_ID` | 空 | Telegram chat id |
-| `BOT_TOKEN` | 空 | Telegram bot token |
+| 变量 | 说明 |
+|---|---|
+| `PORT` | 订阅端口 |
+| `CFIP` | 优选域名/IP |
+| `CFPORT` | 优选端口 |
+| `UUID` | 节点 UUID |
+| `NEZHA_SERVER` | 哪吒面板地址 |
+| `NEZHA_PORT` | 哪吒端口 |
+| `NEZHA_KEY` | 哪吒密钥 |
+| `ARGO_DOMAIN` | Argo 固定隧道域名 |
+| `ARGO_AUTH` | Argo 隧道密钥 |
+| `SUB_TOKEN` | 订阅 token |
+| `CHAT_ID` | Telegram chat id |
+| `BOT_TOKEN` | Telegram bot token |
 
 #### 🎯 适用场景
 
-- ✅ VPS 服务器（Ubuntu/Debian/CentOS/Alpine）
-- ✅ Serv00/CT8 免费平台
+- ✅ VPS 服务器
 - ✅ 需要最简单部署
 - ✅ 追求多协议组合
-
-#### ⚠️ 注意事项
-
-- Serv00/CT8 需要符合端口要求
-- 客户端需要开启 `allow_insecure`（HY2/TUIC）
-- NAT 小鸡需要手动修改端口
+- ✅ 需要最稳定
 
 ---
 
-### 3. nodejs-railway
+### 5. deploy-vercel
 
 #### 📌 基本信息
 
 | 项目 | 说明 |
 |---|---|
-| **GitHub** | [xfwwl668/nodejs-railway](https://github.com/xfwwl668/nodejs-railway) |
+| **GitHub** | [vvqx/deploy-vercel](https://github.com/vvxw/deploy-vercel) |
+| **定位** | Vercel 部署工具 |
 | **语言** | JavaScript |
-| **协议** | VLESS, VMESS, Trojan (WS+TLS) |
-| **特点** | Argo 隧道部署工具 |
-| **大小** | ~220KB |
+| **协议** | VLESS WS+TLS, Trojan WS+TLS, Shadowsocks WS |
+| **平台** | Vercel（免费） |
 
 #### 🚀 核心特性
 
-- ✅ **Argo 隧道**：临时/固定隧道自动切换
-- ✅ **多协议**：VLESS + VMESS + Trojan
-- ✅ **哪吒集成**：v0/v1 自动检测 TLS
-- ✅ **自动端口**：智能端口检测
-- ✅ **DNS 缓存**：减少 DNS 查询
-- ✅ **域名屏蔽**：自动屏蔽测速网站
-- ✅ **Docker 支持**：提供 Dockerfile
+- ✅ **Vercel 免费**：完全免费部署
+- ✅ **低延迟**：全球 CDN 加速
+- ✅ **自动构建**：GitHub Actions 自动打包
+- ✅ **哪吒集成**：支持 v0 和 v1
+- ✅ **自动保活**：IP 上报保活
+
+#### 🔄 信号流程
+
+```
+客户端 → CF Worker(反代) → Vercel 节点 → 优选域名/IP → 目标网站
+
+具体：
+1. 客户端连接 CF Worker（自定义域名）
+2. CF Worker 转发到 Vercel
+3. Vercel 解密流量
+4. Vercel 通过优选域名/IP 转发
+5. 获取目标内容
+6. 加密返回客户端
+```
+
+#### ⚠️ 重要：为什么需要反代？
+
+```
+问题：
+- Vercel 分配的域名已被墙
+- 无法直接连接 Vercel 域名
+
+解决：
+1. 部署到 Vercel
+2. 创建 CF Worker 反代
+3. 绑定自定义域名
+4. 客户端用新域名连接
+```
 
 #### 🛠️ 部署教程
 
-##### PaaS 平台部署
+##### 步骤 1：Fork 仓库
 
-```bash
-# 上传文件
-# 只需上传 index.js 和 package.json
-# PaaS 平台自动设置环境变量
+```
+1. 打开 https://github.com/vvxw/deploy-vercel
+2. 点击右上角 "Use this template"
+3. 创建一个新仓库（建议私有）
+4. 名称随意
 ```
 
-##### Docker 部署
+##### 步骤 2：修改环境变量
 
-```bash
-docker build -t nodejs-railway .
-docker run -d -p 3000:3000 \
-  -e UUID=your-uuid \
-  -e NEZHA_SERVER=nz.example.com:8008 \
-  -e NEZHA_KEY=your-key \
-  nodejs-railway
+```
+1. 打开 index.js
+2. 修改第 1-30 行的环境变量
+3. 不需要的留空
+4. 保存
 ```
 
-##### npm 全局安装
+##### 步骤 3：替换伪装网页
 
-```bash
-npm install -g nodejs-argo
-nodejs-argo
+```
+1. 用 AI 生成一个纯 HTML 网页
+2. 替换 index.html
+3. 保存
 ```
 
-#### ⚙️ 环境变量
+##### 步骤 4：部署到 Vercel
 
-| 变量 | 默认值 | 说明 |
-|---|---|---|
-| `UPLOAD_URL` | - | 订阅上传地址 |
-| `PROJECT_URL` | `https://www.google.com` | 项目域名 |
-| `AUTO_ACCESS` | false | 自动保活 |
-| `PORT` | `3000` | HTTP 服务端口 |
-| `ARGO_PORT` | `8001` | Argo 隧道端口 |
-| `UUID` | 随机 | 用户 UUID |
-| `NEZHA_SERVER` | - | 哪吒面板域名 |
-| `NEZHA_PORT` | - | 哪吒端口 |
-| `NEZHA_KEY` | - | 哪吒密钥 |
-| `ARGO_DOMAIN` | - | Argo 固定隧道域名 |
-| `ARGO_AUTH` | - | Argo 固定隧道密钥 |
-| `CFIP` | `www.visa.com.tw` | 优选域名/IP |
-| `CFPORT` | `443` | 优选端口 |
-| `NAME` | `Vls` | 节点名称前缀 |
-| `FILE_PATH` | `./tmp` | 运行目录 |
-| `SUB_PATH` | `sub` | 订阅路径 |
-
-#### 🎯 适用场景
-
-- ✅ Railway / Koyeb / Fly.io
-- ✅ 游戏平台玩具
-- ✅ 需要 Argo 隧道
-- ✅ Node.js 环境
-
-#### ⚠️ 注意事项
-
-- 仅限个人使用，禁止商业用途
-- 不填写 ARGO_DOMAIN 和 ARGO_AUTH 使用临时隧道
-- 哪吒端口为特定值时自动开启 TLS
-
----
-
-### 4. python-xray-argo
-
-#### 📌 基本信息
-
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [xfwwl668/python-xray-argo](https://github.com/xfwwl668/python-xray-argo) |
-| **语言** | Python |
-| **协议** | VLESS WS+TLS, VMESS WS+TLS, Trojan WS+TLS |
-| **特点** | Argo-Xray 节点，三协议组合 |
-| **大小** | ~22KB |
-
-#### 🚀 核心特性
-
-- ✅ **三协议组合**：VLESS + VMESS + Trojan
-- ✅ **Argo 隧道**：临时/固定隧道
-- ✅ **哪吒集成**：v0/v1 自由选择
-- ✅ **自动 TLS**：哪吒端口特定值时自动开启
-- ✅ **Docker 镜像**：`ghcr.io/xfwwl668/python:latest`
-
-#### 🛠️ 部署教程
-
-##### Python 环境部署
-
-```bash
-# 上传文件
-# 只需上传 app.py 和 requirements.txt
-
-# 赋权并运行
-chmod +x app.py
-pip install -r requirements.txt
-screen python app.py
+```
+1. 打开 Vercel 控制台
+2. 点击 "New Project"
+3. Import 你的仓库
+4. 选择默认配置
+5. Install Command 设置为 "npm install"
+6. 点击 "Deploy"
+7. 等待部署完成
 ```
 
-##### Docker 部署
+##### 步骤 5：反代套 CDN
 
-```bash
-docker run -d -p 3000:3000 \
-  -e UUID=your-uuid \
-  -e NEZHA_SERVER=nz.example.com:8008 \
-  -e NEZHA_KEY=your-key \
-  ghcr.io/xfwwl668/python:latest
 ```
+1. 创建 CF Worker
+2. 粘贴以下代码：
 
-#### ⚙️ 环境变量
+export default {
+    async fetch(request, env) {
+        let url = new URL(request.url);
+        if (url.pathname.startsWith('/')) {
+            var arrStr = [
+                'xxx-xxx.vercel.app',   // 填写你的 Vercel 域名
+            ];
+            url.protocol = 'https:'
+            url.hostname = getRandomArray(arrStr)
+            let new_request = new Request(url, request);
+            return fetch(new_request);
+        }
+        return env.ASSETS.fetch(request);
+    },
+};
+function getRandomArray(array) {
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+}
 
-与 nodejs-railway 类似，详见 [nodejs-railway](#3-nodejs-railway)
-
-#### 🎯 适用场景
-
-- ✅ Python 平台玩具
-- ✅ 游戏平台
-- ✅ 需要 Argo 隧道
-- ✅ Docker 部署
-
-#### ⚠️ 注意事项
-
-- 仅限学习了解，非盈利目的
-- 下载后 24 小时内删除
-- 不得用于商业用途
-
----
-
-### 5. java-ws
-
-#### 📌 基本信息
-
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [xfwwl668/java-ws](https://github.com/xfwwl668/java-ws) |
-| **语言** | Java |
-| **协议** | VLESS, Trojan, Shadowsocks (WS) |
-| **特点** | Java 原生实现，无需三方内核 |
-| **大小** | ~37KB |
-
-#### 🚀 核心特性
-
-- ✅ **多协议**：VLESS + Trojan + Shadowsocks
-- ✅ **自动检测**：自动识别客户端协议
-- ✅ **哪吒集成**：v0/v1 支持
-- ✅ **自动端口**：端口占用时自动寻找
-- ✅ **DNS 缓存**：减少 DNS 查询
-- ✅ **域名屏蔽**：屏蔽测速网站
-- ✅ **静默模式**：非 DEBUG 模式只显示关键日志
-- ✅ **.env 支持**：支持系统环境变量和 .env 文件
-
-#### 🛠️ 部署教程
-
-##### 下载 JAR
-
-```bash
-# 从 Release 下载 server.jar
-# 上传到 Java 服务器运行
-
-java -jar server.jar
+3. 绑定自定义域名
+4. 将反代后的域名填入 index.js 的 DOMAIN 变量
+5. 用 https://www.jshaman.com/index.html 混淆后保存
 ```
-
-##### Maven 构建
-
-```bash
-cd java-ws
-mvn -DskipTests package
-java -jar target/server-1.0.jar
-```
-
-#### ⚙️ 环境变量
-
-| 变量 | 是否必须 | 默认值 | 说明 |
-|---|---|---|---|
-| `UUID` | 否 | 随机 | 节点 UUID |
-| `PORT` | 否 | `3000` | 节点监听端口 |
-| `DOMAIN` | **是** | - | 项目分配的域名 |
-| `NEZHA_SERVER` | 否 | - | 哪吒面板地址 |
-| `NEZHA_PORT` | 否 | - | 哪吒 v0 agent 端口 |
-| `NEZHA_KEY` | 否 | - | 哪吒密钥 |
-| `NAME` | 否 | - | 节点名称前缀 |
-| `SUB_PATH` | 否 | `sub` | 订阅 token |
-| `AUTO_ACCESS` | 否 | false | 自动保活 |
-| `DEBUG` | 否 | false | 调试模式 |
-
-#### 🎯 适用场景
-
-- ✅ Java 平台
-- ✅ 需要多协议
-- ✅ 要求无需内核
-- ✅ 需要 DNS 缓存
-
-#### ⚠️ 注意事项
-
-- DOMAIN 变量必须设置
-- 可使用 CF Workers 反代域名套 CDN 加速
-
----
-
-### 6. edgetunnel
-
-#### 📌 基本信息
-
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [cmliu/edgetunnel](https://github.com/cmliu/edgetunnel) |
-| **语言** | JavaScript |
-| **协议** | VLESS, Trojan |
-| **特点** | CF Workers/Pages 边缘隧道解密 |
-| **大小** | ~150KB |
-
-#### 🚀 核心特性
-
-- ✅ **边缘计算**：CF Workers/Pages 部署
-- ✅ **管理面板**：可视化后台管理
-- ✅ **订阅系统**：自动订阅生成
-- ✅ **SOCKS5 代理**：链式代理支持
-- ✅ **优选 API**：优化网络延迟
-- ✅ **多台适配**：Windows, Android, iOS, macOS
-
-#### 🛠️ 部署教程
-
-##### Workers 部署
-
-1. 在 CF Worker 控制台创建新 Worker
-2. 粘贴 `_worker.js` 内容
-3. 设置变量 `ADMIN` 为管理员密码
-4. 绑定 KV 命名空间，变量名 `KV`
-5. 绑定自定义域，如 `vless.google.com`
-6. 访问 `https://vless.google.com/admin` 登录
-
-##### Pages 上传部署（推荐）
-
-1. 下载 `main.zip`
-2. 在 CF Pages 控制台上传资产
-3. 设置环境变量 `ADMIN`
-4. 绑定 KV 命名空间
-5. 绑定自定义域
 
 #### ⚙️ 环境变量
 
 | 变量 | 说明 |
 |---|---|
-| `ADMIN` | 管理员密码 |
-| `KEY` | 加密密钥（默认勿动） |
-| `HOST` | 主机名 |
-| `PROXYIP` | 反代 IP |
-| `GO2SOCKS5` | SOCKS5 白名单 |
+| `UUID` | 节点 UUID |
+| `NEZHA_SERVER` | 哪吒面板地址 |
+| `NEZHA_KEY` | 哪吒密钥 |
+| `DOMAIN` | 反代后的域名 |
+| `AUTO_ACCESS` | 自动保活 |
+| `SUB_PATH` | 订阅路径 |
+| `NAME` | 节点名称 |
+| `PORT` | 端口 |
+| `SHOW_LOG` | 显示日志 |
+| `WSPATH` | WS 路径 |
 
 #### 🎯 适用场景
 
-- ✅ CF Workers/Pages 免费平台
-- ✅ 无需服务器
-- ✅ 需要管理面板
-- ✅ 需要边缘加速
-
-#### ⚠️ 注意事项
-
-- Error 1101 问题参考视频解析
-- 绑定自定义域需使用次级域名
-- 需绑定 KV 命名空间
+- ✅ Vercel 免费平台
+- ✅ 需要低延迟
+- ✅ 已有 CF Worker
+- ✅ 愿意反代套 CDN
 
 ---
 
-### 7. cnet
+## 📊 项目对比矩阵
 
-#### 📌 基本信息
+### 功能对比
 
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [xfwwl668/cnet](https://github.com/xfwwl668/cnet) |
-| **语言** | Node.js / Python / Shell / Java / PHP |
-| **协议** | ECH (WebSocket) |
-| **特点** | ECH 代理 + Nezha + Cloudflare Tunnel 三合一 |
-| **大小** | ~5KB |
+| 功能 | sbx-native | paper-pro | java-plugins-plus | Sing-box | deploy-vercel |
+|---|---|---|---|---|---|
+| **无子进程** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **VLESS Reality** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **VMESS WS+Argo** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **HY2** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **TUIC** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Trojan** | ✅ | ✅ | ✅ | ❌ | ✅ |
+| **Shadowsocks** | ✅ | ✅ | ✅ | ❌ | ✅ |
+| **哪吒 v0** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **哪吒 v1** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **TG 推送** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **自动保活** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Argo 隧道** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **CF 反代** | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-#### 🚀 核心特性
+### 平台对比
 
-- ✅ **ECH 代理**：端到端加密，最隐蔽
-- ✅ **哪吒集成**：Agent 监控
-- ✅ **Cloudflare Tunnel**：自动隧道
-- ✅ **多语言**：5 种语言实现
-- ✅ **自动守护**：60 秒检查进程状态
-- ✅ **多架构**：Linux amd64/arm64, FreeBSD amd64/arm64
+| 平台 | sbx-native | paper-pro | java-plugins-plus | Sing-box | deploy-vercel |
+|---|---|---|---|---|---|
+| **Railway** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Koyeb** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Fly.io** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Serv00** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **CT8** | ✅ | ✅ | ✅ | ✅ | ❌ |
+| **Hostuno** | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **VPS** | ✅ | ❌ | ❌ | ✅ | ❌ |
+| **Vercel** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **游戏机 MC** | ✅ | ✅ | ✅ | ❌ | ❌ |
 
-#### 🛠️ 部署教程
+### 难度对比
 
-##### Node.js 部署
+| 项目 | 难度 | 构建时间 | 部署方式 |
+|---|---|---|---|
+| **sbx-native** | ⭐⭐ | 即时 | 上传文件 |
+| **paper-pro** | ⭐⭐⭐ | 7-10 分钟 | 替换主文件 |
+| **java-plugins-plus** | ⭐⭐ | 2 分钟 | 放插件目录 |
+| **Sing-box** | ⭐ | 即时 | 一键脚本 |
+| **deploy-vercel** | ⭐⭐⭐ | 即时 | Vercel 部署 + 反代 |
 
-```bash
-node index.js
-```
+---
 
-##### Python 部署
+## 👥 假人保活方案
 
-```bash
-python3 index.py
-```
+### 为什么需要假人？
 
-##### Shell 部署
+玩具平台（Serv00/CT8/Hostuno）回收服务器的条件：
 
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-##### Docker 部署
-
-```bash
-docker run -d \
-  -e SERVER_PORT=7860 \
-  -e TOKEN=mysecret \
-  -e SUB_NAME=mynode \
-  -e SUB_URL=https://example.com/upload \
-  -e NSERVER=nezha.example.com:5555 \
-  -e NKEY=your-agent-key \
-  -e APP_TLS=true \
-  -e TOK=eyJhIjoixxxx... \
-  -e SHOW_LOG=true \
-  -v cnet-data:/app \
-  -p 7860:7860 \
-  cnet
-```
-
-#### ⚙️ 环境变量
-
-| 变量 | 默认值 | 说明 |
+| 回收条件 | 说明 | 风险等级 |
 |---|---|---|
-| `FILE_PATH` | `.` | 二进制下载路径 |
-| `SHOW_LOG` | false | 显示日志 |
-| `SERVER_PORT` | `7860` | 监听端口 |
-| `PORT` | `7860` | 监听端口（备用） |
-| `TOKEN` | `123` | ECH 密钥 |
-| `SUB_NAME` | - | 订阅节点名称 |
-| `SUB_URL` | - | 订阅上传地址 |
-| `DOM` | - | 隧道域名 |
-| `NSERVER` | - | 哪吒服务端地址 |
-| `NKEY` | - | 哪吒 Agent 密钥 |
-| `APP_UUID` | 自动 | Agent UUID |
-| `APP_TLS` | true | 哪吒 TLS 连接 |
-| `TOK` | - | Cloudflare Tunnel Token |
+| **长时间无连接** | 超过 24-48 小时无人连接 | 🔴 高 |
+| **连接数过低** | 长期 0 连接 | 🔴 高 |
+| **CPU 使用率过低** | 长期闲置 | 🟡 中 |
+| **内存使用率过低** | 长期闲置 | 🟡 中 |
 
-#### 🎯 适用场景
+### 方案对比
 
-- ✅ 任意平台
-- ✅ 需要 ECH 加密
-- ✅ 需要三合一功能
-- ✅ 要求最轻量
+| 方案 | 检测风险 | 稳定性 | 隐蔽性 | 推荐度 |
+|---|---|---|---|---|
+| **MC 假人插件** | 🟢 极低 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **sbx-native 保活** | 🟢 低 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **代理流量保活** | 🟢 低 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **脚本模拟连接** | 🔴 高 | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
+| **固定间隔访问** | 🟡 中 | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
 
-#### ⚠️ 注意事项
+### 方案 1：MC 假人插件（推荐）
 
-- 自用备份，非开源项目
-- 下载后 24 小时内删除
-- 不得用于商业用途
+```
+优势：
+- 最自然 - 模拟真实玩家行为
+- 平台不检测 - 看起来像正常玩家
+- 可控制 - 定时上下线
+- 多玩家 - 可模拟多个玩家
 
----
+劣势：
+- 需要 MC 环境
+- 需要配置插件
 
-### 8. java-xah
-
-#### 📌 基本信息
-
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [xfwwl668/java-xah](https://github.com/xfwwl668/java-xah) |
-| **语言** | Java |
-| **协议** | Xray, Hysteria2, Cloudflared |
-| **特点** | Java 版多协议部署 |
-| **大小** | ~33KB |
-
-#### 🎯 适用场景
-
-- ✅ Java 平台
-- ✅ 需要 Xray/HY2
-- ✅ 需要 Cloudflared
-
----
-
-### 9. aimili-vpngate
-
-#### 📌 基本信息
-
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [xfwwl668/aimili-vpngate](https://github.com/xfwwl668/aimili-vpngate) |
-| **语言** | - |
-| **协议** | vpngate |
-| **特点** | 借助 vpngate.net 让 Linux 用干净 IP 出站 |
-| **大小** | ~130KB |
-
-#### 🎯 适用场景
-
-- ✅ Linux 环境
-- ✅ 需要干净 IP 出站
-- ✅ 配合其他代理使用
-
----
-
-### 10. node-ws-hug
-
-#### 📌 基本信息
-
-| 项目 | 说明 |
-|---|---|
-| **GitHub** | [xfwwl668/node-ws-hug](https://github.com/xfwwl668/node-ws-hug) |
-| **语言** | JavaScript |
-| **协议** | VLESS + Trojan (WS) |
-| **特点** | Serverless 实现，双协议 |
-| **大小** | ~6MB |
-
-#### 🎯 适用场景
-
-- ✅ Serverless 平台
-- ✅ 需要双协议
-- ✅ Node.js 环境
-
----
-
-## 🖥️ 部署平台对比
-
-### 平台适配矩阵
-
-| 平台 | sbx-native | Sing-box | nodejs-railway | python-xray-argo | java-ws | edgetunnel | cnet |
-|---|---|---|---|---|---|---|---|
-| **VPS (Ubuntu/Debian)** | ✅ | ✅ | ✅ | ✅ | ✅ | - | ✅ |
-| **VPS (CentOS/Rocky)** | ✅ | ✅ | ✅ | ✅ | ✅ | - | ✅ |
-| **VPS (Alpine)** | - | ✅ | ✅ | ✅ | ✅ | - | ✅ |
-| **Serv00** | ✅ | ✅ | ✅ | ✅ | ✅ | - | ✅ |
-| **CT8** | ✅ | ✅ | ✅ | ✅ | ✅ | - | ✅ |
-| **Railway** | ✅ | - | ✅ | ✅ | ✅ | - | ✅ |
-| **Koyeb** | ✅ | - | ✅ | ✅ | ✅ | - | ✅ |
-| **Fly.io** | ✅ | - | ✅ | ✅ | ✅ | - | ✅ |
-| **CF Workers** | - | - | - | - | - | ✅ | - |
-| **CF Pages** | - | - | - | - | - | ✅ | - |
-| **游戏平台** | ✅ | - | ✅ | ✅ | ✅ | - | ✅ |
-| **Docker** | ✅ | - | ✅ | ✅ | ✅ | - | ✅ |
-
----
-
-## 📊 哪吒探针集成指南
-
-### 哪吒 v0 配置
-
-```bash
-# 环境变量
-export NEZHA_SERVER=nz.example.com
-export NEZHA_PORT=5555
-export NEZHA_KEY=your-agent-key
+推荐插件：
+- Citizens（NPC 管理）
+- Dummy Players（假人）
+- FakePlayer（假人）
 ```
 
-### 哪吒 v1 配置
+#### 配合 paper-pro 使用
 
-```bash
-# 环境变量
-export NEZHA_SERVER=nz.example.com:8008
-export NEZHA_KEY=your-client-secret
-# NEZHA_PORT 留空
+```
+步骤：
+1. 部署 paper-pro（替换 server.jar）
+2. 安装假人插件到 plugins/ 目录
+3. 配置假人数量和时间表
+4. 保持服务器 24/7 活跃
+
+配置示例：
+- 3 个假人，每 5 分钟上下线一次
+- 模拟真实玩家行为（移动、聊天）
+- 保持服务器活跃
 ```
 
-### 哪吒 TLS 自动检测
+#### 配合 java-plugins-plus 使用
 
-当哪吒端口为以下值之一时，自动开启 TLS：
-- `443`, `8443`, `2096`, `2087`, `2083`, `2053`
+```
+步骤：
+1. 部署 java-plugins-plus（放 plugins/ 目录）
+2. 安装假人插件到 plugins/ 目录
+3. 配置假人数量和时间表
+4. 保持服务器活跃
+
+注意：
+- java-plugins-plus 本身是 EssentialsX 插件
+- 假人插件也是 plugins/ 目录
+- 两个插件可以共存
+```
+
+### 方案 2：sbx-native 自动保活
+
+```
+配置：
+- AUTO_ACCESS=true
+- PROJECT_URL=https://your-server-url
+
+效果：
+- 每 5 分钟自动访问
+- 保持服务器活跃
+- 防止回收
+```
+
+### 方案 3：代理流量保活
+
+```
+配置：
+# 随机间隔访问订阅链接
+curl -s --connect-timeout 10 "https://your-sub-url/sub"
+
+# 随机间隔（300-600 秒）
+sleep $((300 + RANDOM % 300))
+```
+
+---
+
+## ⚙️ 常见设置详解
+
+### UUID
+
+```
+为什么每个节点要唯一：
+- 客户端识别节点
+- 防止节点冲突
+- 哪吒监控区分节点
+
+怎么生成：
+- 使用在线 UUID 生成器
+- 每个节点随机生成一个
+- 格式：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+### NEZHA_SERVER / NEZHA_KEY
+
+```
+哪吒监控什么：
+- 连接数
+- 流量（上传/下载）
+- CPU/内存使用
+- 节点状态
+
+哪吒 v0 vs v1：
+- v0: 需要 NEZHA_PORT，agent 端口
+- v1: 不需要端口，地址格式 host:port
+
+配置示例：
+v0: NEZHA_SERVER=nz.example.com, NEZHA_PORT=5555
+v1: NEZHA_SERVER=nz.example.com:8008, NEZHA_PORT 留空
+```
+
+### ARGO_DOMAIN / ARGO_AUTH
+
+```
+Argo 隧道是什么：
+- Cloudflare 隧道
+- 把流量从 CF 边缘节点转到你的服务器
+- 不需要开放端口
+
+临时隧道 vs 固定隧道：
+- 临时：每次重启生成新域名
+- 固定：使用固定域名，长期使用
+
+配置示例：
+ARGO_DOMAIN=abc.2go.com
+ARGO_AUTH=your-token-or-json
+```
+
+### CFIP / CFPORT
+
+```
+优选域名/IP 是什么：
+- 解析到 CDN 边缘节点的域名
+- 延迟低，稳定性高
+
+为什么要优选：
+- 降低延迟
+- 避免 DNS 污染
+- 隐藏真实节点
+
+怎么选：
+1. 访问 https://sub.eooce.xx.kg
+2. 选择延迟最低的
+3. 填入 CFIP
+
+常用优选：
+- www.google.com
+- api.github.com
+- gitee.com
+```
+
+### UPLOAD_URL
+
+```
+订阅上传是什么：
+- 把节点信息上传到 Merge-sub
+- 一个订阅链接包含所有节点
+
+为什么要上传：
+- 管理多个节点
+- 方便客户端订阅
+- 自动更新
+
+配置示例：
+UPLOAD_URL=https://merge.serv00.net
+```
+
+### CHAT_ID / BOT_TOKEN
+
+```
+TG 推送有什么用：
+- 节点上线通知
+- 节点下线通知
+- 节点流量统计
+
+为什么要推送：
+- 及时发现节点问题
+- 管理多个节点
+- 远程监控
+
+配置示例：
+CHAT_ID=12345
+BOT_TOKEN=5678:AA812jqIA...
+```
 
 ---
 
@@ -853,47 +1042,50 @@ export NEZHA_KEY=your-client-secret
 
 ### Q1: 哪个项目最适合新手？
 
-**A:** [Sing-box](#2-sing-box) 最适合新手，一键脚本，复制粘贴即可部署，全自动安装+保活。
+**A:** [Sing-box](#4-sing-box) 最适合新手，一键脚本，复制粘贴即可部署。
 
-### Q2: 哪个项目速度最快？
+### Q2: 哪个项目最稳定？
 
-**A:** [Sing-box](#2-sing-box) 和 [sbx-native](#1-sbx-native) 都支持 HY2 和 TUIC，速度最快。
+**A:** [Sing-box](#4-sing-box) 最稳定，成熟的一键脚本，多平台支持。
 
 ### Q3: 哪个项目最隐蔽？
 
-**A:** [cnet](#7-cnet) 使用 ECH 端到端加密，最隐蔽。其次是 [sbx-native](#1-sbx-native) 和 [Sing-box](#2-sing-box) 的 VLESS Reality。
+**A:** [sbx-native](#1-sbx-native) 最隐蔽，原生 FFI，无子进程，不易被检测。
 
-### Q4: 哪个项目最稳定？
+### Q4: 哪个项目最适合免费平台？
 
-**A:** [Sing-box](#2-sing-box) 最稳定，成熟的一键脚本，多平台支持。
+**A:** [deploy-vercel](#5-deploy-vercel) 使用 Vercel，完全免费。
 
-### Q5: 哪个项目最适合免费平台？
+### Q5: 哪个项目支持最多协议？
 
-**A:** [edgetunnel](#6-edgetunnel) 使用 CF Workers/Pages，完全免费。
+**A:** [sbx-native](#1-sbx-native) / [paper-pro](#2-paper-pro) / [java-plugins-plus](#3-java-plugins-plus) 都支持 6 种协议。
 
-### Q6: 哪个项目支持最多协议？
-
-**A:** [sbx-native](#1-sbx-native) 支持 6 种协议：VMESS WS+Argo, VLESS Reality, HY2, TUIC, AnyTLS, SOCKS5。
-
-### Q7: 无子进程是什么意思？
+### Q6: 无子进程是什么意思？
 
 **A:** 传统方式启动 sing-box 会生成子进程，容易被检测。[sbx-native](#1-sbx-native) 通过原生 FFI 直接调用动态库，只有一个主进程，更隐蔽。
 
-### Q8: Argo 隧道和固定隧道有什么区别？
+### Q7: Argo 隧道和固定隧道有什么区别？
 
 **A:** 
 - **临时隧道**：每次重启生成新域名，适合快速测试
 - **固定隧道**：使用固定域名，适合长期使用
 
-### Q9: 哪吒 v0 和 v1 有什么区别？
+### Q8: 哪吒 v0 和 v1 有什么区别？
 
 **A:**
 - **v0**：使用 `NEZHA_PORT`，agent 端口
 - **v1**：使用 `NZ_CLIENT_SECRET`，不需要端口，地址格式 `host:port`
 
-### Q10: 如何解锁 GPT 和 Netflix？
+### Q9: 如何解锁 GPT 和 Netflix？
 
 **A:** 大多数项目默认配置已解锁，建议使用 VLESS Reality + VMESS WS+Argo 组合。
+
+### Q10: 假人怎么加？
+
+**A:** 
+- 用 [paper-pro](#2-paper-pro)：替换主文件后，假人插件放 plugins/ 目录
+- 用 [java-plugins-plus](#3-java-plugins-plus)：插件放 plugins/ 目录，假人插件也放 plugins/ 目录
+- 推荐插件：Citizens / Dummy Players / FakePlayer
 
 ---
 
