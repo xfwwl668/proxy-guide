@@ -1,127 +1,95 @@
 # 06 · deploy-vercel 免费版
 
-> 仓库：https://github.com/vvxw/deploy-vercel（已验证存在）
-> 一句话：部署到 Vercel 白嫖，支持 VLESS WS+TLS、Trojan WS+TLS、Shadowsocks WS。
-> 代价是步骤最多：还要配 Cloudflare Worker 反代。
+> 仓库：https://github.com/vvxw/deploy-vercel
+> 一句话：零成本跑在 Vercel 上，但代价是：**没有 sing-box 内核**（协议是手写的 JS）、只走 WebSocket、**必须套反代才能用**。
+> 这是 5 个项目里原理最特殊的一个，部署前先看懂它是怎么工作的。
 
-> ⚠️ 原版表格里写的 `vvqx/deploy-vercel` 是错的（404），正确的是 `vvxw/deploy-vercel`。
+## 技术原理（和前四个完全不同）
+
+前四个跑的是真正的 sing-box 内核。这个不是：`index.js`（约 1000 行）里用纯 Node.js **手写**了 VLESS / Trojan / Shadowsocks 的协议解析，没有任何第三方代理内核（`package.json` 依赖只有 `ws`、`axios`、grpc 相关和 `systeminformation`）。
+
+运行模型：
+- Vercel 把所有请求打到 `index.js`（`vercel.json` 里 `routes` 全转发，`regions: ["sin1"]` 新加坡，函数最长跑 300 秒）；
+- 只监听**一条** WebSocket 路径（默认 UUID 前 8 位），收到第一条消息后按特征字节分流：像 VLESS 的走 VLESS 解析、像 Trojan 的走 Trojan 解析、像 SS 地址头的走 SS 解析，对不上直接断开；
+- 握手通过后，用 `net.connect()` 从 Vercel 实例向目标网站发起 TCP 连接，再把两边对接起来；
+- 函数内部全是明文 HTTP/WS，TLS 由 Vercel 边缘或反代层终止——所以订阅链接里 `security=tls` 指的是外层。
+
+附带功能（源码证实）：
+- **防滥用**：硬编码屏蔽了 10 个测速域名（speedtest.net、fast.com 等），命中直接断开；
+- **哪吒 agent**：用 grpc 手写了全套 proto（上报系统状态、终端、文件管理），`package.json` 叫 `nzws-js` 就是"哪吒+WebSocket 的 JS 实现"的意思。但 serverless 函数是按次调用的，常驻 `while(true)` 上报循环跑不起来——所以"哪吒不亮不用填"是结构性必然，不是 bug。
+
+## 支持的协议（只有 3 种，全走 WS）
+
+| 协议 | 订阅形式 | 说明 |
+|---|---|---|
+| VLESS | `vless://UUID@域名:443?type=ws&path=/xxxx` | `encryption=none`，UUID 即凭证，有校验 |
+| Trojan | `trojan://UUID@域名:443?type=ws&path=/xxxx` | 密码即 UUID，校验 `sha224(UUID)`，有校验 |
+| Shadowsocks | `ss://base64("none:UUID")@域名:443?plugin=v2ray-plugin…` | **method=`none`（无加密），且服务端不校验任何凭证**，全靠 WS 路径保密 |
+
+没有 Reality、Hysteria2、TUIC、gRPC，没有 UDP。能接受"纯 WS + 无 UDP"再往下看。
 
 ## 适合谁
 
-- 没 VPS、没游戏机，只想白嫖的人
-- 能接受折腾 Cloudflare Worker 反代的人
-- 对速度要求不高、能接受免费额度限制的人
+- 一分钱不想花、能接受折腾反代的人
+- 只需要轻量浏览，对协议丰富度、UDP、稳定性要求不高的人
+- 想研究"serverless 上怎么跑代理"的人（代码本身是很好的学习材料）
 
 ## 准备什么
 
-- [ ] GitHub 账号、Vercel 账号、Cloudflare 账号（都要）
-- [ ] 生成一个 UUID
-- [ ] 一个自己的域名（可选，反代绑定自定义域名用，没有就用 workers.dev 的）
-
-## 为什么需要反代？
-
-Vercel 分配的 `*.vercel.app` 域名在部分地区可能无法直接访问，
-所以要套一层 Cloudflare Worker 反代，再绑自己的域名（或 workers.dev 域名）给客户端用。
-
-流程：客户端 → CF Worker（反代）→ Vercel 节点 → 优选域名/IP → 目标网站
+- [ ] GitHub 账号、Vercel 账号、Cloudflare 账号（Workers 或 Snippets 用来反代）
+- [ ] 一个你自己的域名（反代用）
+- [ ] 生成一个 UUID（**必须改**，默认的是公开仓库里的公开值，不改等于把节点送人；且 WS 路径是 UUID 前 8 位，可被推算）
 
 ## 操作步骤
 
-### 步骤 1：Fork 仓库
+1. 点仓库 "Use this template" 建**私密仓库**（防 UUID 泄露）。
+2. 改环境变量（二选一）：**直接改 `index.js` 里的默认值**，或去 Vercel 控制台 → Settings → Environment Variables 里设置（代码是 `process.env.X || 默认值`，两种都生效）。核心是要改 `UUID`，以及部署后要填的 `DOMAIN`。
+3. （可选）用 AI 生成一个纯 html 页替换 `index.html`（伪装页，`/` 路径返回的就是它；当前是个英文环保主题占位页）。
+4. Vercel → New Project → Import 该仓库 → Install Command 填 `npm install` → Deploy。想换地区改 `vercel.json` 的 `regions`（默认 `sin1` 新加坡）。
+5. 用 Cloudflare Workers/Snippets 把你自己的域名反代到 `xxx.vercel.app`（README 里给了 Worker 脚本，路径透传即可），然后把**反代后的域名**填进 `DOMAIN`。
+6. 访问 `https://你的反代域名/vercel` 拿订阅（base64 的三行节点）。
 
-1. 打开 https://github.com/vvxw/deploy-vercel
-2. 点右上角 **Use this template**（或 Fork）
-3. 建一个新仓库，**建议私有**，名字随意
+> 💡 README 还提到用 jshaman.com 混淆 `index.js` 再保存，这是为了躲 Vercel 的滥用检测，属于经验操作，源码层面无从证实。
 
-### 步骤 2：改环境变量
+## 为什么必须反代（源码层面）
 
-1. 打开 `index.js`
-2. 改第 1~30 行的环境变量（UUID、DOMAIN、WSPATH 等，不用的留空）
-3. 保存
+- 不填 `DOMAIN` 时，代码会去抓 Vercel 出口 IP，生成 `IP:3000` + `security=none` 的明文订阅——Vercel 只通过自家边缘域名提供 443 入站，`IP:3000` 从公网根本连不上。**无论"墙不墙"，不填 DOMAIN 就没有可用节点**。
+- 反代的 Worker 脚本和 `index.js` 是咬合的：脚本做路径透传，而 `index.js` 的路由（`/`、`/vercel`、WS 路径）全按路径判断、不校验 Host，所以透传路径就能工作；订阅里的 `sni`/`host` 填反代域名，由反代层终止 TLS。
 
-### 步骤 3：替换伪装网页（可选但建议）
+## 成功标准（对照打勾）
 
-1. 用 AI 生成一个纯 HTML 网页（假装是个普通网站）
-2. 替换掉 `index.html`
-3. 保存
+- [ ] `https://你的反代域名/` 能打开伪装页
+- [ ] `https://你的反代域名/vercel` 能拿到 base64 订阅，解开是 3 行节点
+- [ ] 把节点 `address` 换成优选 IP/域名后（延迟更低），客户端能连通
+- [ ] 按 [docs/07](07-客户端使用-订阅导入.md) 最后一节验证，确认真的能用
 
-### 步骤 4：部署到 Vercel
+## 环境变量真相（以 `index.js` 源码为准）
 
-1. 打开 Vercel 控制台 → **New Project**
-2. Import 你的仓库，默认配置
-3. Install Command 设为 `npm install`
-4. 点 **Deploy**，等部署完成，记下分配的 `xxx.vercel.app` 域名
+| 变量 | 源码默认值 | 说明 |
+|---|---|---|
+| `UUID` | `d1cf4b9c-3e57-085d-b34a-797fcf601381` | **公开值，必须改**；三协议共用；同时决定默认 WS 路径 |
+| `WSPATH` | UUID 前 8 位 | 三协议共用这一条 WS 路径 |
+| `DOMAIN` | `your-domain.com` | **核心变量**，填反代后的域名；不填则订阅不可用 |
+| `SUB_PATH` | `vercel` | 订阅路径：`https://DOMAIN/vercel` |
+| `NAME` | `Vercel` | 节点名前缀，实际输出 `Vercel-国家-ISP`（取订阅时实时查 geoip） |
+| `PORT` | `3000` | 仅函数内部监听，在 Vercel 上对外无意义 |
+| `NEZHA_SERVER` / `NEZHA_KEY` | 空 | 任一为空则 agent 直接跳过；填了也大概率不亮（见上） |
+| `AUTO_ACCESS` | `false` | ⚠️ 为 `true` 会把**含 UUID 的订阅链接** POST 给第三方 `oooo.serv00.net/add-url`，README 没提，**别开** |
+| `SHOW_LOG` | 关闭 | 设任意值开启详细日志 |
 
-### 步骤 5：CF Worker 反代
-
-1. Cloudflare 控制台 → Workers → **Create Worker**，起个名
-2. 粘贴反代代码（把 `xxx-xxx.vercel.app` 换成你的 Vercel 域名）：
-
-```js
-export default {
-  async fetch(request, env) {
-    let url = new URL(request.url);
-    if (url.pathname.startsWith('/')) {
-      var arrStr = [
-        'xxx-xxx.vercel.app', // 你的 Vercel 域名
-      ];
-      url.protocol = 'https:'
-      url.hostname = getRandomArray(arrStr)
-      let new_request = new Request(url, request);
-      return fetch(new_request);
-    }
-    return env.ASSETS.fetch(request);
-  },
-};
-
-function getRandomArray(array) {
-  const randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
-}
-```
-
-3. 点 **Deploy**，等约 1 分钟，复制 Worker 的 URL（如 `abc.workers.dev`）
-4. （可选）有自己域名的话：Workers → Settings → Custom Domain 绑定
-5. 把反代后的域名填回 `index.js` 的 `DOMAIN` 变量，重新部署 Vercel
-
-> 原版提到用 jshaman 混淆 index.js，这是可选的防扫操作，不混淆也能跑。
-
-## 成功标准
-
-- [ ] Vercel 部署成功，`xxx.vercel.app` 能打开伪装网页
-- [ ] Worker URL 能打开同样的伪装网页（说明反代通了）
-- [ ] 订阅链接可访问，客户端导入后出现 3 种协议的节点
-- [ ] 按 [docs/07](07-客户端使用-订阅导入.md) 最后一节验证可用
-
-## 环境变量
-
-| 变量 | 说明 |
-|---|---|
-| `UUID` | ★ 节点身份证 |
-| `DOMAIN` | 反代后的域名（Worker 域名或自定义域名） |
-| `WSPATH` | WS 路径 |
-| `SUB_PATH` | 订阅路径 |
-| `NAME` | 节点名称 |
-| `PORT` | 端口 |
-| `NEZHA_SERVER` / `NEZHA_KEY` | 哪吒监控 🔑 |
-| `AUTO_ACCESS` | 自动保活 |
-| `SHOW_LOG` | 显示日志 |
+小 bug：`getip()` 失败兜底时会拼出 `cahnge-your-domain.com`（拼写错误），网络抖动时可能产出垃圾订阅，重新取一次即可。
 
 ## 出问题怎么办
 
 | 症状 | 先查 |
 |---|---|
-| Vercel 部署失败 | 看部署日志，多为 `index.js` 变量格式问题 |
-| 反代后打不开 | 检查 Worker 是否部署成功、域名填对没 |
-| 延迟变高 | 免费 CF Worker 绕路正常；换优选域名试试 |
-| 反代域名被墙 | 换个 Worker 域名或自定义域名，重新部署 |
-
-## 免费额度提醒
-
-- Cloudflare Workers 免费版：每天 10 万次请求，个人用一般够
-- Vercel 免费版有流量和构建时长限制，超了会限速或停服
-- 别指望免费方案有多稳，挂了就重建一个
+| 订阅是 `IP:3000` 明文链接 | `DOMAIN` 没填或没生效，填反代域名 |
+| 反代域名打不开 | Worker 脚本里的 `xxx.vercel.app` 是否换成你自己的；Vercel 项目是否部署成功 |
+| 节点超时 | 换优选 IP/域名填到 `address`；确认反代链路本身通（先 curl 反代域名） |
+| 订阅偶尔变成垃圾域名 | `cahnge-your-domain.com` 拼写 bug，重取订阅 |
+| 哪吒不亮 | 结构性问题，别折腾，空着就行 |
+| Vercel 封号/项目被删 | 代理类项目违反 Vercel 可接受使用政策，有这个风险；换号或换方案 |
 
 ## 卸载 / 清理
 
-Vercel 控制台删项目，Cloudflare 删 Worker 即可。
+Vercel 控制台删掉该 Project，GitHub 删掉仓库（私密仓库删之前确认 UUID 已作废）。
