@@ -154,4 +154,26 @@ note(d, 710, "三者都好 = 体验好；弱网（高铁/电梯）先看丢包",
 note(d, 762, "HY2 / TUIC 走 UDP，在弱网下有时体验更好，就这个原因", 30)
 img.save(f"{OUT}/10-延迟丢包带宽.png")
 
+# ---------- 图11：假人保活原理 ----------
+img, d = new_canvas()
+title(d, "图11 · 假人保活原理", "让面板觉得：这服有人在用")
+d.rounded_rectangle([40, 180, 660, 660], radius=30, fill='#FEF2F2', outline=RED, width=4)
+ctext(d, 350, 210, "没有假人", 42, RED)
+box(d, 200, 300, 300, 130, "服务器", "MC 游戏服", fill='white', outline=RED, ts=40)
+ctext(d, 350, 470, "在线人数：0", 34, SUB)
+ctext(d, 350, 530, "面板判定：僵尸服", 32, RED)
+ctext(d, 350, 580, "→ 回收 / 关机", 32, RED)
+d.rounded_rectangle([740, 180, 1360, 660], radius=30, fill='#F0FDF4', outline=GREEN, width=4)
+ctext(d, 1050, 210, "挂了 2 个假人", 42, GREEN)
+box(d, 900, 300, 300, 130, "服务器", "MC 游戏服", fill='white', outline=GREEN, ts=40)
+for i, name in enumerate(["Bot_挂机1", "Bot_挂机2"]):
+    x = 880 + i * 190
+    d.rounded_rectangle([x, 460, x+170, 530], radius=18, fill='#DCFCE7', outline=GREEN, width=3)
+    ctext(d, x+85, 478, name, 26, INK)
+ctext(d, 1050, 555, "在线人数：2", 34, SUB)
+ctext(d, 1050, 605, "面板判定：有人在用 → 保留", 32, GREEN)
+note(d, 720, "假人不需要正版账号（插件直接在服务端构造）", 32)
+note(d, 772, "1~2 个够用，太多吃内存；服务器重启后假人清零，要重挂", 30)
+img.save(f"{OUT}/11-假人保活原理.png")
+
 print("done")
